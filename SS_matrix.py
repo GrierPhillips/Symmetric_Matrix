@@ -13,6 +13,8 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
                              " with a value of 0 or 1 for offset."))
         if not self.check_sym():
             raise ValueError('Matrix must be symmetric.')
+        else:
+            self.matrix = self.sym_to_sparse(matrix)
         self.n = matrix.shape[0]
         if offset == 0:
             self.diag = np.squeeze(np.asarray(ss.csr_matrix(np.diag(matrix)).todense()))
@@ -22,8 +24,7 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
             else:
                 self.diag = 0
         self.k = offset
-        else:
-            self.matrix = self.sym_to_sparse(matrix)
+
 
     def check_sym(self):
         '''Check if the input matrix is symmetric.'''
@@ -71,6 +72,7 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
         if i == j:
             if type(self.diag) == numpy.ndarray:
                 return self.diag[i]
-            return self.diag
+            else:
+                return self.diag
         l = (self.n * (self.n - 1) / 2) - (self.n - i) * ((self.n - i) - 1) / 2 + j - i - 1
         return self.matrix[0, l]
