@@ -73,5 +73,7 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
                 return self.diag[i]
             else:
                 return self.diag
+        elif i > j:
+            i, j = j, i
         l = ((self.n * (self.n - 1)) / 2) - ((self.n -i) * (self.n - i - 1) / 2) + j
         return self.matrix[0, l]
