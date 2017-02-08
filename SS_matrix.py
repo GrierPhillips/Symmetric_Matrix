@@ -7,15 +7,26 @@ from scipy.sparse.sputils import IndexMixin
 
 
 class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
+    '''Create a linear sparse representation of a symmetrical matrix. This
+    approach should save significant memory when dealing with large sparse
+    or dense symmetrical arrays.
+
+    Input:
+        matrix: A square symmetrical 2-D numpy array
+        offset: The offset value for the upper triangle (0 or 1)
+        diag: numpy array of the diagonal values or constant
+    Output:
+
+    '''
     def __init__(self, matrix, offset=0, diag=None):
-        if offset not in [0,1]:
-            raise ValueError(("Sparse Symmetrical Matrix can only be constructed"
-                             " with a value of 0 or 1 for offset."))
-        if not self.check_sym():
+        if offset not in [0, 1]:
+            raise ValueError(("Sparse Symmetrical Matrix can only be "
+                              "constructed with a value of 0 or 1 for offset."))
+        if not (matrix.T == matrix).all():
             raise ValueError('Matrix must be symmetric.')
-        else:
-            self.matrix = self.sym_to_sparse(matrix)
-        self.n = matrix.shape[0]
+        self.k = offset
+        self.matrix = self.sym_to_sparse(matrix)
+        self.dim = matrix.shape[0]
         if offset == 0:
             self.diag = np.squeeze(np.asarray(ss.csr_matrix(np.diag(matrix)).todense()))
         else:
@@ -23,11 +34,9 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
                 self.diag = diag
             else:
                 self.diag = 0
-        self.k = offset
 
-    def check_sym(self):
-        '''Check if the input matrix is symmetric.'''
-        return (self.matrix.T == self.matrix).all()
+    def reshape(self, newshape, order='C'):
+        return super().reshape(newshape, order)
 
     def sym_to_sparse(self, matrix):
         '''Convert a symmetric matrix into a sparse matrix by removing the lower
@@ -39,7 +48,7 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
         Output:
             sparse_matrix: A sparse matrix in Compressed Sparse Row format
         '''
-        out = matrix[np.triu_indices_from(matrix, k=self.k)].flatten()
+        out = matrix[np.triu_indices_from(matrix, self.k)].flatten()
         sparse_matrix = ss.csr_matrix(out)
         return sparse_matrix
 
@@ -62,18 +71,18 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
         Input:
             idx: Index of original matrix
             self.diag: Value of original matrix diagonal
-            self.n: One of the square dimensions as matrix is n x n
+            self.dim: One of the square dimensions as matrix is n x n
             self.matrix: Sparse linear array of upper triangle values
         Output:
             Value of matrix at original index location
         '''
         i, j = self._unpack_index(idx)
         if i == j:
-            if type(self.diag) == numpy.ndarray:
+            if isinstance(np.ndarray, self.diag):
                 return self.diag[i]
             else:
                 return self.diag
         elif i > j:
             i, j = j, i
-        l = ((self.n * (self.n - 1)) / 2) - ((self.n -i) * (self.n - i - 1) / 2) + j
-        return self.matrix[0, l]
+        idx = ((self.dim * (self.dim - 1)) / 2) - ((self.dim -i) * (self.dim - i - 1) / 2) + j
+        return self.matrix[0, idx]
