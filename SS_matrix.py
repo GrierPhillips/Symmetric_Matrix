@@ -25,7 +25,6 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
                 self.diag = 0
         self.k = offset
 
-
     def check_sym(self):
         '''Check if the input matrix is symmetric.'''
         return (self.matrix.T == self.matrix).all()
