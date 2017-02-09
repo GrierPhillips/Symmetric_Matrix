@@ -21,14 +21,15 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
     def __init__(self, matrix, offset=0, diag=None):
         if offset not in [0, 1]:
             raise ValueError(("Sparse Symmetrical Matrix can only be "
-                              "constructed with a value of 0 or 1 for offset."))
+                              "constructed with an offset value of 0 or 1."))
         if not (matrix.T == matrix).all():
             raise ValueError('Matrix must be symmetric.')
         self.k = offset
         self.matrix = self.sym_to_sparse(matrix)
         self.dim = matrix.shape[0]
         if offset == 0:
-            self.diag = np.squeeze(np.asarray(ss.csr_matrix(np.diag(matrix)).todense()))
+            self.diag = np.squeeze(np.asarray(ss.csr_matrix(np.diag(matrix))
+                                              .todense()))
         else:
             if diag:
                 self.diag = diag
@@ -84,5 +85,6 @@ class SparseSymmetricMatrix(_cs_matrix, IndexMixin):
                 return self.diag
         elif i > j:
             i, j = j, i
-        idx = ((self.dim * (self.dim - 1)) / 2) - ((self.dim -i) * (self.dim - i - 1) / 2) + j
+        dim = self.dim
+        idx = ((dim * (dim - 1)) / 2) - ((dim - i) * (dim - i - 1) / 2) + j
         return self.matrix[0, idx]
