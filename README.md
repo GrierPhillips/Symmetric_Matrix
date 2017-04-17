@@ -4,4 +4,6 @@ Storage of large symmetric matrices can pose a problem for a deployment system w
 ## Sparse storage
 Sparse storage is inefficient and actually results in a larger memory consumption than condensing the matrix to a 1d array. 
 
-To do: Write class for converting sym-mat to 1d array of upper triangle only (option for including or excluding diagonal) by converting lower triangle to all zeros, flattening, and returning only the nonzero 1d array. Write custom __getitem__ method for returning the proper value for (i,j) == (j,i).
+The ss_matrix.py module contains a class that will convert any size symmetric matrix into a linear representation. This simple implementation utilizes at most 50% of the memory required for the original matrix and can still be indexed the same as the original matrix. 
+
+To do: Properly implement all methods required for mimicking an subclass of Scipy.sparse.compressed._cs_matrix.
